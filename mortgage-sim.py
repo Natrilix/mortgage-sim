@@ -6,22 +6,28 @@ import matplotlib.pyplot as plt
 st.title("Offset vs Investment Mortgage Strategy Simulator")
 
 # Sidebar inputs
-initial_cash = st.sidebar.number_input("Initial Cash ($)", value=100000.0, step=10000.0)
+st.sidebar.header("Adjustable Parameters")
+initial_offset = st.sidebar.number_input("Initial Offset Amount ($)", value=100000.0, step=10000.0)
+initial_investment = st.sidebar.number_input("Initial Investment Amount ($)", value=0.0, step=10000.0)
 monthly_contribution = st.sidebar.number_input("Monthly Surplus ($)", value=18278.0, step=500.0)
 loan_balance = st.sidebar.number_input("Initial Home Loan ($)", value=1203515.23, step=10000.0)
-offset_rate = st.sidebar.slider("Offset Interest Rate (Annual %)", 0.0, 10.0, 5.89)
+mortgage_rate = st.sidebar.slider("Mortgage Interest Rate (Annual %)", 0.0, 10.0, 5.89)
 investment_rate = st.sidebar.slider("Investment Return (Annual %)", 0.0, 15.0, 7.0)
-tax_rate = st.sidebar.slider("Investment Tax Rate (%)", 0.0, 50.0, 30.0)
 years = st.sidebar.slider("Simulation Length (Years)", 5, 40, 30)
+
+# Fixed parameters
+tax_rate = 45.0  # Fixed investment tax rate in %
+res_invest_loan_rate = 6.74  # Investment loan interest rate (fixed)
+effective_invest_loan_rate = res_invest_loan_rate * (1 - tax_rate / 100)  # After-tax cost of investment loan
 
 # Calculations
 months = years * 12
-monthly_offset_rate = (1 + offset_rate / 100) ** (1/12) - 1
+monthly_mortgage_rate = (1 + mortgage_rate / 100) ** (1/12) - 1
 monthly_investment_rate = ((1 + investment_rate / 100) ** (1/12) - 1) * (1 - tax_rate / 100)
 
 # Initialize variables
-offset_bal = initial_cash
-investment_bal = initial_cash
+offset_bal = initial_offset
+investment_bal = initial_investment
 remaining_loan = loan_balance
 
 offset_values = []
@@ -33,12 +39,12 @@ for month in range(months):
     if remaining_loan > 0:
         if offset_bal < loan_balance:
             # Stage 1: build offset
-            offset_bal = (offset_bal + monthly_contribution) * (1 + monthly_offset_rate)
+            offset_bal = (offset_bal + monthly_contribution) * (1 + monthly_mortgage_rate)
             current_stage = 'Build Offset'
         else:
             # Stage 2: repay principal
             repayment = monthly_contribution
-            interest = remaining_loan * monthly_offset_rate
+            interest = remaining_loan * monthly_mortgage_rate
             principal_payment = repayment - interest
             remaining_loan -= principal_payment
             remaining_loan = max(0, remaining_loan)
@@ -68,7 +74,7 @@ df['Year'] = df['Month'] / 12
 fig, ax = plt.subplots(figsize=(10, 6))
 ax.plot(df['Year'], df['Offset Balance'], label='Offset Balance')
 ax.plot(df['Year'], df['Investment Balance'], label='Investment Balance')
-ax.plot(df['Year'], df['Remaining Loan'], label='Remaining Loan')
+ax.plot(df['Year'], df['Remaining Loan'], label='Mortgage Principal Remaining')
 ax.set_title("Mortgage Strategy Projection")
 ax.set_xlabel("Years")
 ax.set_ylabel("Balance ($)")
