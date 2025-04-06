@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 st.title("Offset vs Investment Mortgage Strategy Simulator")
 
 # Sidebar inputs
-initial_cash = st.sidebar.number_input("Initial Cash ($)", value=100000, step=10000)
-monthly_contribution = st.sidebar.number_input("Monthly Surplus ($)", value=18278, step=500)
-loan_balance = st.sidebar.number_input("Initial Home Loan ($)", value=1203515.23, step=10000)
+initial_cash = st.sidebar.number_input("Initial Cash ($)", value=100000.0, step=10000.0)
+monthly_contribution = st.sidebar.number_input("Monthly Surplus ($)", value=18278.0, step=500.0)
+loan_balance = st.sidebar.number_input("Initial Home Loan ($)", value=1203515.23, step=10000.0)
 offset_rate = st.sidebar.slider("Offset Interest Rate (Annual %)", 0.0, 10.0, 5.89)
 investment_rate = st.sidebar.slider("Investment Return (Annual %)", 0.0, 15.0, 7.0)
 tax_rate = st.sidebar.slider("Investment Tax Rate (%)", 0.0, 50.0, 30.0)
